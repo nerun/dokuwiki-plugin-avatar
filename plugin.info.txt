@@ -5,4 +5,4 @@ email  danieldiasr@gmail.com
 date   2023-08-17
 name   Avatar
 desc   Displays avatar images
-url    https://www.dokuwiki.org/plugin:avatar
+url    https://github.com/nerun/dokuwiki-plugin-avatar
