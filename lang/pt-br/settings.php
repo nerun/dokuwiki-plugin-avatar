@@ -9,7 +9,7 @@
 // for the configuration manager
 $lang['namespace'] = 'Domínio para avatares locais';
 $lang['size']      = 'Tamanho padrão do avatar';
-$lang['rating']    = 'Rating mínimo para o gravatar';
+$lang['rating']    = 'Classificação mínima para o gravatar';
 $lang['default']   = 'Tipo de gravatar padrão';
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
