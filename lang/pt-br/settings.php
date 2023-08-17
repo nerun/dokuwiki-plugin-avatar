@@ -1,14 +1,15 @@
 <?php
 /**
- * Portuguese language file
+ * Brazilian Portuguese language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Flávio Roberto Santos <flavio.barata@gmail.com>
- * @author     Marcus D'Alencar <marcus_dalencar@yahoo.com.br>
+ * @author     Daniel "Nerun" Rodrigues <danieldiasr@gmail.com>
  */
- 
+
 // for the configuration manager
-$lang['size']   = 'tamanho padrão do avatar';
-$lang['rating'] = 'rating mínimo para os gravatars';
+$lang['namespace'] = 'Domínio para avatares locais';
+$lang['size']      = 'Tamanho padrão do avatar';
+$lang['rating']    = 'Rating mínimo para o gravatar';
+$lang['default']   = 'Tipo de gravatar padrão';
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :

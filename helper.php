@@ -61,8 +61,8 @@ class helper_plugin_avatar extends DokuWiki_Plugin {
       $ns = $this->getConf('namespace');
       $formats = array('.png', '.jpg', '.gif');
       foreach ($formats as $format) {
-        $user_img = mediaFN($ns.':'.$user.$format);
-        $name_img = mediaFN($ns.':'.$name.$format);
+        if(isset($user)) $user_img = mediaFN($ns.':'.$user.$format);
+        if(isset($name)) $name_img = mediaFN($ns.':'.$name.$format);
         if(@file_exists($user_img)) {;
             $src = ml($ns.':'.$user.$format, array('w' => $size, 'h' => $size));
             break;

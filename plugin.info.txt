@@ -1,8 +1,8 @@
 # General Plugin Info
 base   avatar
-author Michael Hamann, Michael Klier, Gina Haeussge
-email  michael@content-space.de
-date   2017-08-25
+author Daniel Rodrigues, Michael Hamann, Gina Häußge, Michael Klier, Esther Brunner
+email  danieldiasr@gmail.com
+date   2023-08-17
 name   Avatar
 desc   Displays avatar images
 url    https://www.dokuwiki.org/plugin:avatar
