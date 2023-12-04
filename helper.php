@@ -74,7 +74,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin {
     }
     
     if (empty($src)) {
-      $seed = md5(strtolower($mail));
+      $seed = md5(dokuwiki\Utf8\PhpString::strtolower($mail));
       
       if (function_exists('imagecreatetruecolor')) {
         // we take the monster ID as default
