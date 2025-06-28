@@ -1,12 +1,15 @@
 <?php
 /**
- * Polish language file v0.9 by Zbyszekk <zbypan@gmail.com>
+ * Polish language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Esther Brunner <wikidesign@gmail.com> (in English)
+ * @author     Zbyszekk <zbypan@gmail.com>
+ * @author     Daniel "Nerun" Rodrigues <danieldiasr@gmail.com>
  */
  
 // for the configuration manager
-$lang['size']   = 'Domyślny rozmiar avatar\'a';
+$lang['namespace'] = 'Przestrzeń nazw dla lokalnych awatarów';
+$lang['size']      = 'Domyślny rozmiar awatar\'a';
+$lang['rating']    = 'Minimalna ocena dla gravatarów';
+$lang['default']   = 'Typ domyślnych gravatarów';
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :

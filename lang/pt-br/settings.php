@@ -12,4 +12,3 @@ $lang['size']      = 'Tamanho padrão do avatar';
 $lang['rating']    = 'Classificação mínima para o gravatar';
 $lang['default']   = 'Tipo de gravatar padrão';
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :

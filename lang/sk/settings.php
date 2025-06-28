@@ -4,10 +4,12 @@
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Pirhala Marek <mpirhala@genesispo.sk>
+ * @author     Daniel "Nerun" Rodrigues <danieldiasr@gmail.com>
  */
  
 // for the configuration manager
-$lang['size']   = 'implicitná veľkosť avataru';
-$lang['rating'] = 'minimálne hodnotenie gravataru';
+$lang['namespace'] = 'Menný priestor pre lokálne avatary';
+$lang['size']      = 'Predvolená veľkosť avatara';
+$lang['rating']    = 'Minimálne hodnotenie pre gravatary';
+$lang['default']   = 'Typ predvolených gravatary';
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :

@@ -4,10 +4,12 @@
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Adriano Afonso <mail@adrianoafonso.net>
-*/
- 
-// for the configuration manager
-$lang['size']   = 'tamanho padrão do avatar';
-$lang['rating'] = 'rating mínimo para os gravatars';
+ * @author     Daniel "Nerun" Rodrigues <danieldiasr@gmail.com>
+ */
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :
+// for the configuration manager
+$lang['namespace'] = 'Domínio para avatares locais';
+$lang['size']      = 'Tamanho padrão do avatar';
+$lang['rating']    = 'Classificação mínima para o gravatar';
+$lang['default']   = 'Tipo de gravatar padrão';
+

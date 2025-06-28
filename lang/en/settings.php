@@ -12,4 +12,3 @@ $lang['size']      = 'Default size of avatar';
 $lang['rating']    = 'Minimum rating for gravatars';
 $lang['default']   = 'Type of default gravatars';
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :

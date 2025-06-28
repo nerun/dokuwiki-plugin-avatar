@@ -4,10 +4,12 @@
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     ZDYX <zhangduyixiong@gmail.com>
+ * @author     Daniel "Nerun" Rodrigues <danieldiasr@gmail.com>
  */
  
 // for the configuration manager
-$lang['size']   = '默认的 Avatar 头像大小';
-$lang['rating'] = '默认的 Gravatar 头像评级';
+$lang['namespace'] = '本地 avatars 命名空间';
+$lang['size']      = 'avatar 默认大小';
+$lang['rating']    = 'gravatars 最低评分';
+$lang['default']   = '默认 gravatars 类型';
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :

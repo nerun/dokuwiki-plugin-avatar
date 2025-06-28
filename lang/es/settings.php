@@ -3,11 +3,12 @@
  * Spanish language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Jos Antonio Fuentes Santiago <joanfusan@hotmail.com>
+ * @author     Daniel "Nerun" Rodrigues <danieldiasr@gmail.com>
  */
  
-// para el administrador de configuraión
-$lang['size']    = 'tamaño predeterminado para el avatar';
-$lang['rating']  = 'puntuación mínima para elegir gravatars';
+// for the configuration manager
+$lang['namespace'] = 'Espacio de nombres para avatares locales';
+$lang['size']      = 'Tamaño predeterminado del avatar';
+$lang['rating']    = 'Calificación mínima para gravatars';
+$lang['default']   = 'Tipo de gravatars predeterminados';
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :

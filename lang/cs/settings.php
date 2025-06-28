@@ -4,10 +4,12 @@
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Esther Brunner <wikidesign@gmail.com>
+ * @author     Daniel "Nerun" Rodrigues <danieldiasr@gmail.com>
  */
  
 // for the configuration manager
-$lang['size']   = 'implicitní velikost avataru';
-$lang['rating'] = 'minimální hodnocení gravataru';
+$lang['namespace'] = 'Jmenný prostor pro lokální avatary';
+$lang['size']      = 'Výchozí velikost avatara';
+$lang['rating']    = 'Minimální hodnocení pro gravatary';
+$lang['default']   = 'Typ výchozích gravatary';
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :
