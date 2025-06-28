@@ -1,0 +1,9 @@
+2025-06-28
+
+$ time ./benchmark_monsterid.php
+Generated avatars: 20000
+Minimum size: 0.64 KB
+Maximum size: 1.82 KB
+Average size: 1.21 KB
+Standard deviation: 0.17 KB
+./benchmark_monsterid.php  71,31s user 0,52s system 99% cpu 1:11,86 total

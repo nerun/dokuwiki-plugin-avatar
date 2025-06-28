@@ -1,0 +1,14 @@
+# Ignore on export
+/.git                               export-ignore
+.gitattributes                      export-ignore
+.gitignore                          export-ignore
+benchmark_monsterid.php             export-ignore
+benchmark_monsterid_results.txt     export-ignore
+parts/monsterparts.xcf              export-ignore
+parts/image.info                    export-ignore
+
+# Line endings
+*               text=auto
+*.php           text eol=lf
+*.sh            text eol=lf
+
