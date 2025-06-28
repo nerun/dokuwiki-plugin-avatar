@@ -37,7 +37,7 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
             return ['', '', null, null];
         }
 
-        $user = trim($matches[1]);
+        $user = $matches[1];
         $param = isset($matches[2]) ? trim(strtolower($matches[2])) : '';
         $title = isset($matches[3]) ? trim($matches[3]) : '';
         
