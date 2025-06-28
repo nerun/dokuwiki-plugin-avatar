@@ -11,54 +11,61 @@
  * @author   Esther Brunner <wikidesign@gmail.com>
  */
 
-// must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
-
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 
 class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
 
-    function getType() { return 'substition'; }
-    function getSort() { return 315; }
+    const SIZE_SMALL = 20;
+    const SIZE_MEDIUM = 40;
+    const SIZE_LARGE = 80;
+    const SIZE_XLARGE = 120;
 
-    function connectTo($mode) {
-        $this->Lexer->addSpecialPattern("{{(?:gr|)avatar>.+?}}",$mode,'plugin_avatar');
+    public function getType(): string { return 'substition'; }
+    public function getSort(): int { return 315; }
+
+    public function connectTo($mode): void {
+        $this->Lexer->addSpecialPattern("{{(?:gr|)avatar>.+?}}", $mode, 'plugin_avatar');
     }
 
-    function handle($match, $state, $pos, Doku_Handler $handler) {
-        list($syntax, $match) = explode('>', substr($match, 0, -2), 2); // strip markup
-        $match_array = preg_split('/[?|]/', $match);
+    public function handle(string $match, int $state, int $pos, Doku_Handler $handler): array {
+        list($syntax, $match) = explode('>', substr($match, 2, -2), 2);
+        // $syntax = 'avatar' or 'gravatar'
         
-        $user = $match_array[0];  // [user] or [mail]
-        $param = trim(strtolower($match_array[1])); // [size]
-        $title = trim($match_array[2]); // [title]
+        if (!preg_match('/^([^?|]+)(?:\?([^|]*))?(?:\|(.*))?$/', $match, $matches)) {
+            return ['', '', null, null];
+        }
 
-        // Check alignment
-        $ralign = (bool)preg_match('/^ /', $user);
-        $lalign = (bool)preg_match('/ $/', $user);
-        if ($lalign & $ralign) $align = 'center';
-        else if ($ralign)      $align = 'right';
-        else if ($lalign)      $align = 'left';
-        else                   $align = NULL;
+        $user = trim($matches[1]);
+        $param = isset($matches[2]) ? trim(strtolower($matches[2])) : '';
+        $title = isset($matches[3]) ? trim($matches[3]) : '';
+        
+        // Determine alignment
+        $align = null;
+        if (preg_match('/^ /', $user)) $align = 'right';
+        if (preg_match('/ $/', $user)) $align = $align ? 'center' : 'left';
+        $user = trim($user);
 
-        if (preg_match('/^s/', $param))       $size = 20;
-        else if (preg_match('/^m/', $param))  $size = 40;
-        else if (preg_match('/^l/', $param))  $size = 80;
-        else if (preg_match('/^xl/', $param)) $size = 120;
-        else $size = NULL;
+        // Determine size
+        switch ($param) {
+            case 's':  $size = self::SIZE_SMALL; break;
+            case 'm':  $size = self::SIZE_MEDIUM; break;
+            case 'l':  $size = self::SIZE_LARGE; break;
+            case 'xl': $size = self::SIZE_XLARGE; break;
+            default:   $size = null;
+        }
 
-        return array(trim($user), $title, $align, $size);
+        return [$user, $title, $align, $size];
     }
 
-    function render($mode, Doku_Renderer $renderer, $data) {
-        if ($mode == 'xhtml') {
-            if ($my =& plugin_load('helper', 'avatar'))
-                $renderer->doc .= '<span class="vcard">'.
-                $my->getXHTML($data[0], $data[1], $data[2], $data[3]).
+    public function render($mode, Doku_Renderer $renderer, $data): bool {
+        if ($mode !== 'xhtml') return false;
+
+        if ($my = plugin_load('helper', 'avatar')) {
+            $renderer->doc .= '<span class="vcard">' . 
+                $my->getXHTML($data[0], $data[1], $data[2], $data[3]) . 
                 '</span>';
-            return true;
         }
-        return false;
+        return true;
     }
 }
-// vim:ts=4:sw=4:et:enc=utf-8:
+

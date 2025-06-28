@@ -73,4 +73,4 @@ function build_monster($seed='',$size='') {
 function _get_monster_part($seed, $lower = 0, $upper = 255) {
     return hexdec($seed) % ($upper - $lower) + $lower;
 }
-// vim:ts=4:sw=4:et:enc=utf-8:
+

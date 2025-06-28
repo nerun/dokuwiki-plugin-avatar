@@ -1,115 +1,177 @@
 <?php
 /**
+ * Avatar Plugin for DokuWiki
+ * 
+ * Displays avatar images with syntax {{avatar>email@domain.com}}
+ * Supports local avatars, Gravatar.com, and MonsterID fallback
+ * 
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Esther Brunner <wikidesign@gmail.com>
+ * @author     Daniel Dias Rodrigues <danieldiasr@gmail.com> (modernization)
  */
 
-// must be run within Dokuwiki
+declare(strict_types=1);
+
 if (!defined('DOKU_INC')) die();
 
-class helper_plugin_avatar extends DokuWiki_Plugin {
+class helper_plugin_avatar extends DokuWiki_Plugin
+{
+    private const DEFAULT_SIZES = [
+        'small'  => 20,
+        'medium' => 40,
+        'large'  => 80,
+        'xlarge' => 120
+    ];
 
-    function getMethods() {
-        $result = array();
-        $result[] = array(
-            'name'   => 'getXHTML',
-            'desc'   => 'returns the XHTML to display an avatar',
-            'params' => array(
-                'user or mail'     => 'string',
-                'title (optional)' => 'string',
-                'align (optional)' => 'string',
-                'size (optional)'  => 'integer'),
-            'return' => array('xhtml' => 'string'),
-        );
-        return $result;
+    private const ALLOWED_FORMATS = ['.png', '.jpg', '.gif'];
+    private const GRAVATAR_BASE = 'https://secure.gravatar.com/avatar/';
+
+    private array $avatarCache = [];
+
+    public function getMethods(): array
+    {
+        return [
+            [
+                'name'   => 'renderXhtml',
+                'desc'   => 'Returns the XHTML to display an avatar',
+                'params' => [
+                    'user'  => 'string|array',
+                    'title' => 'string',
+                    'align' => 'string',
+                    'size'  => 'int'
+                ],
+                'return' => ['xhtml' => 'string']
+            ]
+        ];
     }
-    
+
     /**
-     * Returns the XHTML of the Avatar
+     * Renders the avatar as XHTML <img>
      */
-    function getXHTML($user, $title = '', $align = '', $size = NULL) {
-        
-        // determine the URL of the avatar image
-        $src = $this->_getAvatarURL($user, $title, $size);
-        
-        // output with vcard photo microformat
-        return '<img src="'.$src.'" class="media'.$align.' photo fn"'.
-            ' title="'.$title.'" alt="'.$title.'" width="'.$size.'"'.
-            ' height="'.$size.'" />';
+    public function renderXhtml(string|array $user, string $title = '', string $align = '', ?int $size = null): string
+    {
+        $src = $this->resolveAvatarUrl($user, $title, $size);
+
+        return '<img src="' . hsc($src) . '" ' .
+               'class="media' . hsc($align) . ' photo fn" ' .
+               'title="' . hsc($title) . '" ' .
+               'alt="' . hsc($title) . '" ' .
+               'width="' . hsc((string) $size) . '" ' .
+               'height="' . hsc((string) $size) . '" />';
     }
-    
+
     /**
-     * Main function to determine the avatar to use
+     * Gets or generates the avatar URL for a user/email
      */
-    function _getAvatarURL($user, &$title, &$size) {
+    public function resolveAvatarUrl(string|array $user, ?string &$title = null, ?int &$size = null): string
+    {
         global $auth;
-        
-        if (!$size || !is_int($size)) $size = $this->getConf('size');
 
-        if(is_array($user)) {
-            $mail = $user['mail'];
-            $name = $user['name'];
-            $user = $user['user'];
-        } else {
-            $mail = $user;
+        $size = $this->normalizeSize($size);
+        $cacheKey = $this->getCacheKey($user, $title, $size);
+
+        if (isset($this->avatarCache[$cacheKey])) {
+            return $this->avatarCache[$cacheKey];
         }
 
-        // check first if a local image for the given user exists
-        $userinfo = $auth->getUserData($user);
-        if (is_array($userinfo)) {
-            if (($userinfo['name']) && (!$title)) $title = hsc($userinfo['name']);
-            $ns = $this->getConf('namespace');
-            $formats = array('.png', '.jpg', '.gif');
-            foreach ($formats as $format) {
-                if(isset($user)) $user_img = mediaFN($ns.':'.$user.$format);
-                if(isset($name)) $name_img = mediaFN($ns.':'.$name.$format);
-                if(@file_exists($user_img)) {
-                    $src = ml($ns.':'.$user.$format, array('w' => $size, 'h' => $size));
-                    break;
-                } elseif(@file_exists($name_img)) {
-                    $src = ml($ns.':'.$name.$format, array('w' => $size, 'h' => $size));
-                }
-            }
-            if (empty($src)) $mail = $userinfo['mail'];
+        $mail = $this->extractUserData($user, $title);
+        $src = $this->tryLocalAvatar($user, $title, $size);
+
+        if (!$src) {
+            $src = $this->getGravatarUrl($mail, $size);
         }
-        
-        if (empty($src)) {
-            $seed = md5(dokuwiki\Utf8\PhpString::strtolower($mail));
-            
-            if (function_exists('imagecreatetruecolor')) {
-                // we take the monster ID as default
-                $file = 'monsterid.php?seed='.$seed.'&size='.$size.'&.png';
-                
-            } else {
-                // GDlib is not availble - resort to default images
-                switch ($size) {
-                    case 20: case 40: case 80:
-                        $file = 'images/default_'.$size.'.png';
-                        break;
-                    default:
-                        $file = 'images/default_120.png';
-                }
-            }
-            $default = ml(DOKU_URL.'/lib/plugins/avatar/'.$file, 'cache=recache', true, '&', true);
-            
-            // do not pass invalid or empty emails to gravatar site...
-            if (mail_isvalid($mail)){
-                if (is_ssl()) {
-                    $src = 'https://secure.gravatar.com/';
-                } else {
-                    $src = 'http://www.gravatar.com/';
-                }
-                $src .= 'avatar/'.$seed.'?s='.$size.'&d='.$this->getConf('default').'&r='.$this->getConf('rating').'&.jpg';
-                $src = ml($src);
-            // show only default image if invalid or empty email given
-            } else {
-                $src = $default;
-            }
+
+        if (empty($title)) {
+            $title = obfuscate($mail);
         }
-        
-        if (!$title) $title = obfuscate($mail);
-        
+
+        $this->avatarCache[$cacheKey] = $src;
         return $src;
     }
+
+    private function normalizeSize(?int $size): int
+    {
+        return ($size && $size > 0) ? $size : (int) $this->getConf('size') ?: self::DEFAULT_SIZES['medium'];
+    }
+
+    private function getCacheKey(string|array $user, ?string $title, int $size): string
+    {
+        $userKey = is_array($user) ? ($user['mail'] ?? '') : $user;
+        return md5($userKey . $title . $size);
+    }
+
+    private function extractUserData(string|array $user, ?string &$title): string
+    {
+        if (is_array($user)) {
+            if (empty($title) && !empty($user['name'])) {
+                $title = hsc($user['name']);
+            }
+            return $user['mail'] ?? '';
+        }
+        return $user;
+    }
+
+    private function tryLocalAvatar(string|array $user, ?string &$title, int $size): ?string
+    {
+        global $auth;
+
+        $username = is_array($user) ? ($user['user'] ?? '') : $user;
+        $userinfo = $auth->getUserData($username);
+
+        if (!$userinfo) {
+            return null;
+        }
+
+        if (empty($title) && !empty($userinfo['name'])) {
+            $title = hsc($userinfo['name']);
+        }
+
+        $ns = $this->getConf('namespace');
+        foreach (self::ALLOWED_FORMATS as $format) {
+            $imagePath = $ns . ':' . $username . $format;
+            $imageFile = mediaFN($imagePath);
+
+            if (file_exists($imageFile)) {
+                return ml($imagePath, ['w' => $size, 'h' => $size]);
+            }
+        }
+
+        return null;
+    }
+
+    private function getGravatarUrl(string $mail, int $size): string
+    {
+        $seed = md5(dokuwiki\Utf8\PhpString::strtolower($mail));
+
+        $default = function_exists('imagecreatetruecolor')
+            ? $this->getMonsterIdUrl($seed, $size)
+            : $this->getDefaultImageUrl($size);
+
+        if (!mail_isvalid($mail)) {
+            return $default;
+        }
+
+        $params = [
+            's' => $size,
+            'd' => $this->getConf('default'),
+            'r' => $this->getConf('rating')
+        ];
+
+        return self::GRAVATAR_BASE . $seed . '?' . http_build_query($params);
+    }
+
+    private function getMonsterIdUrl(string $seed, int $size): string
+    {
+        $file = 'monsterid.php?seed=' . $seed . '&size=' . $size . '&.png';
+        return ml(DOKU_URL . 'lib/plugins/avatar/' . $file, 'cache=recache', true, '&', true);
+    }
+
+    private function getDefaultImageUrl(int $size): string
+    {
+        $validSizes = array_values(self::DEFAULT_SIZES);
+        $realSize = in_array($size, $validSizes, true) ? $size : self::DEFAULT_SIZES['xlarge'];
+        $file = 'images/default_' . $realSize . '.png';
+        return ml(DOKU_URL . 'lib/plugins/avatar/' . $file, 'cache=recache', true, '&', true);
+    }
 }
-// vim:ts=4:sw=4:et:enc=utf-8:
+
