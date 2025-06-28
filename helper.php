@@ -48,7 +48,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
     /**
      * Renders the avatar as XHTML <img>
      */
-    public function renderXhtml(string|array $user, string $title = '', string $align = '', ?int $size = null): string
+    public function renderXhtml(string|array $user, string $title = '', ?string $align = '', ?int $size = null): string
     {
         $src = $this->resolveAvatarUrl($user, $title, $size);
 
@@ -91,7 +91,12 @@ class helper_plugin_avatar extends DokuWiki_Plugin
 
     private function normalizeSize(?int $size): int
     {
-        return ($size && $size > 0) ? $size : (int) $this->getConf('size') ?: self::DEFAULT_SIZES['medium'];
+        if ($size && $size > 0) {
+            return $size;
+        }
+
+        $confSize = (int) $this->getConf('size');
+        return $confSize > 0 ? $confSize : self::DEFAULT_SIZES['medium'];
     }
 
     private function getCacheKey(string|array $user, ?string $title, int $size): string

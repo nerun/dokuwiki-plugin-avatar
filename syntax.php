@@ -29,7 +29,7 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern("{{(?:gr|)avatar>.+?}}", $mode, 'plugin_avatar');
     }
 
-    public function handle(string $match, int $state, int $pos, Doku_Handler $handler): array {
+    public function handle($match, $state, $pos, Doku_Handler $handler): array {
         list($syntax, $match) = explode('>', substr($match, 2, -2), 2);
         // $syntax = 'avatar' or 'gravatar'
         
@@ -64,7 +64,7 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
 
         if ($my = plugin_load('helper', 'avatar')) {
             $renderer->doc .= '<span class="vcard">' . 
-                $my->getXHTML($data[0], $data[1], $data[2], $data[3]) . 
+                $my->renderXhtml($data[0], $data[1], $data[2], $data[3]) . 
                 '</span>';
         }
         return true;
