@@ -1,76 +1,89 @@
 <?php
 /**
- * @license   GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author    Andreas Gohr <andi@splitbrain.org>
+ * MonsterID Generator for DokuWiki Avatar Plugin
+ *
+ * Generates identicon-style monster avatars based on a seed.
+ * Requires PHP GD extension.
+ *
+ * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @author  Andreas Gohr <andi@splitbrain.org>
+ * @author  Daniel Dias Rodrigues <danieldiasr@gmail.com> (modernization)
  */
 
-build_monster($_REQUEST['seed'], $_REQUEST['size']);
+declare(strict_types=1);
+
+if (php_sapi_name() !== 'cli') {
+    $seed = preg_replace('/[^a-f0-9]/i', '', $_GET['seed'] ?? '');
+    $size = (int) ($_GET['size'] ?? 120);
+    $size = max(20, min(512, $size)); // limits between 20 and 512 pixels
+
+    header('Content-Type: image/png');
+    header('Cache-Control: public, max-age=86400');
+
+    $image = generate_monster($seed, $size);
+    if ($image) {
+        imagepng($image);
+        imagedestroy($image);
+    } else {
+        http_response_code(500);
+        echo 'Erro ao gerar imagem.';
+    }
+    exit;
+}
 
 /**
- * Generates a monster for the given seed
- * GDlib is required!
+ * Generates monster image based on seed and size
  */
-function build_monster($seed='',$size='') {
-    // create 16 byte hash from seed
+function generate_monster(string $seed, int $size): ?GdImage
+{
+    if (!function_exists('imagecreatetruecolor')) {
+        return null;
+    }
+
     $hash = md5($seed);
 
-    // calculate part values from seed
-    $parts = array(
-        'legs' => _get_monster_part(substr($hash, 0, 2), 1, 5),
-        'hair' => _get_monster_part(substr($hash, 2, 2), 1, 5),
-        'arms' => _get_monster_part(substr($hash, 4, 2), 1, 5),
-        'body' => _get_monster_part(substr($hash, 6, 2), 1, 15),
-        'eyes' => _get_monster_part(substr($hash, 8, 2), 1, 15),
-        'mouth'=> _get_monster_part(substr($hash, 10, 2), 1, 10),
-    );
+    $parts = [
+        'legs'  => get_part(substr($hash, 0, 2), 1, 5),
+        'hair'  => get_part(substr($hash, 2, 2), 1, 5),
+        'arms'  => get_part(substr($hash, 4, 2), 1, 5),
+        'body'  => get_part(substr($hash, 6, 2), 1, 15),
+        'eyes'  => get_part(substr($hash, 8, 2), 1, 15),
+        'mouth' => get_part(substr($hash, 10, 2), 1, 10),
+    ];
 
-    // create background
-    $monster = @imagecreatetruecolor(120, 120)
-        or die("GD image create failed");
-    $white   = imagecolorallocate($monster, 255, 255, 255);
-    imagefill($monster,0,0,$white);
+    $monster = imagecreatetruecolor(120, 120);
+    if (!$monster) return null;
 
-    // add parts
-    foreach($parts as $part => $num) {
-        $file = dirname(__FILE__).'/parts/'.$part.'_'.$num.'.png';
+    $white = imagecolorallocate($monster, 255, 255, 255);
+    imagefill($monster, 0, 0, $white);
 
-        $im = @imagecreatefrompng($file);
-        if(!$im) die('Failed to load '.$file);
-        imageSaveAlpha($im, true);
-        imagecopy($monster,$im,0,0,0,0,120,120);
-        imagedestroy($im);
-
-        // color the body
-        if($part == 'body') {
-            $r = _get_monster_part(substr($hash, 0, 4), 20, 235);
-            $g = _get_monster_part(substr($hash, 4, 4), 20, 235);
-            $b = _get_monster_part(substr($hash, 8, 4), 20, 235);
-            $color = imagecolorallocate($monster, $r, $g, $b);
-            imagefill($monster,60,60,$color);
+    foreach ($parts as $part => $index) {
+        $filename = __DIR__ . '/parts/' . $part . $index . '.png';
+        if (!file_exists($filename)) continue;
+        $part_img = imagecreatefrompng($filename);
+        if ($part_img) {
+            imagecopy($monster, $part_img, 0, 0, 0, 0, 120, 120);
+            imagedestroy($part_img);
         }
     }
 
-    // restore random seed
-    if($seed) srand();
-
-    // resize if needed, then output
-    if($size && $size < 400) {
-        $out = @imagecreatetruecolor($size,$size)
-            or die("GD image create failed");
-        imagecopyresampled($out,$monster,0,0,0,0,$size,$size,120,120);
-        header ("Content-type: image/png");
-        imagepng($out);
-        imagedestroy($out);
+    if ($size !== 120) {
+        $resized = imagecreatetruecolor($size, $size);
+        imagefill($resized, 0, 0, $white);
+        imagecopyresampled($resized, $monster, 0, 0, 0, 0, $size, $size, 120, 120);
         imagedestroy($monster);
-    }else{
-        header ("Content-type: image/png");
-        imagepng($monster);
-        imagedestroy($monster);
+        return $resized;
     }
-    
+
+    return $monster;
 }
 
-function _get_monster_part($seed, $lower = 0, $upper = 255) {
-    return hexdec($seed) % ($upper - $lower) + $lower;
+/**
+ * Converts part of the hash into an image index
+ */
+function get_part(string $hex, int $min, int $max): int
+{
+    $val = hexdec($hex);
+    return ($val % ($max - $min + 1)) + $min;
 }
 

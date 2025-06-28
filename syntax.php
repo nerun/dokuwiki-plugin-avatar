@@ -3,12 +3,14 @@
  * Avatar Plugin: displays avatar images with syntax {{avatar>email@domain.com}}
  * Optionally you can add a title attribute: {{avatar>email@domain.com|My Name}}
  *
- * For registered users the plugin looks first for a local avatar named username.jpg
- * in user namespace. If none found or for unregistered guests, the avatar from
- * Gravatar.com is taken when available. The MonsterID by Andreas Gohr serves as fallback.
+ * For registered users the plugin looks first for a local avatar named
+ * username.jpg in user namespace. If none found or for unregistered guests, the
+ * avatar from Gravatar.com is taken when available. The MonsterID by Andreas
+ * Gohr serves as fallback.
  *
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author   Esther Brunner <wikidesign@gmail.com>
+ * @author   Daniel Dias Rodrigues <danieldiasr@gmail.com> (modernization)
  */
 
 if(!defined('DOKU_INC')) die();
