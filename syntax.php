@@ -27,12 +27,11 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
 
     function handle($match, $state, $pos, Doku_Handler $handler) {
         list($syntax, $match) = explode('>', substr($match, 0, -2), 2); // strip markup
-        $one = explode('?', $match, 2);    // [user|mail] ? [size]|[title]
-        $two = explode('|', $one[0], 2);   // [user] & [mail]
-        $three = explode('|', $one[1], 2); // [size] & [title]
-        $user = $two[0];
-        $title = $three[1];
-        $param = $three[0];
+        $match_array = preg_split('/[?|]/', $match);
+        
+        $user = $match_array[0];  // [user] or [mail]
+        $param = trim(strtolower($match_array[1])); // [size]
+        $title = trim($match_array[2]); // [title]
 
         // Check alignment
         $ralign = (bool)preg_match('/^ /', $user);
@@ -48,7 +47,7 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
         else if (preg_match('/^xl/', $param)) $size = 120;
         else $size = NULL;
 
-        return array($user, $title, $align, $size);
+        return array(trim($user), $title, $align, $size);
     }
 
     function render($mode, Doku_Renderer $renderer, $data) {
