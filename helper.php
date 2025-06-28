@@ -137,7 +137,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
             $imageFile = mediaFN($imagePath);
 
             if (file_exists($imageFile)) {
-                return ml($imagePath, ['w' => $size, 'h' => $size]);
+                return ml($imagePath, ['w' => $size, 'h' => $size], true, '&', false);
             }
         }
 
