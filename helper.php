@@ -141,7 +141,40 @@ class helper_plugin_avatar extends DokuWiki_Plugin
             }
         }
 
+        // If it is the user itself, it generates and saves Monsterid
+        if (is_string($user) && $user === $username) {
+            if ($this->saveMonsterIdAvatar($username, 120)) { // Save large size to quality
+                $imagePath = $ns . ':' . $username . '.png';
+                if (file_exists(mediaFN($imagePath))) {
+                    return ml($imagePath, ['w' => $size, 'h' => $size], true, '&', false);
+                }
+            }
+        }
+
         return null;
+    }
+
+    private function saveMonsterIdAvatar(string $username, int $size): bool
+    {
+        $ns = $this->getConf('namespace');
+        $filename = $ns . ':' . $username . '.png';
+        $filepath = mediaFN($filename);
+
+        // Monsterid URL for the user
+        $seed = md5(dokuwiki\Utf8\PhpString::strtolower($username));
+        $monsterUrl = DOKU_URL . 'lib/plugins/avatar/monsterid.php?seed=' . $seed . '&size=' . $size;
+
+        // Download the image using file_get_contents
+        $imageData = @file_get_contents($monsterUrl);
+        if ($imageData === false) {
+            return false;
+        }
+
+        // creates the directory if it does not exist
+        io_makeFileDir($filepath);
+
+        // Save the image
+        return file_put_contents($filepath, $imageData) !== false;
     }
 
     private function getGravatarUrl(string $mail, int $size): string
