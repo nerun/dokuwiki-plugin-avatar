@@ -54,13 +54,14 @@ function generate_monster(string $seed, int $size): ?GdImage
     $monster = imagecreatetruecolor(120, 120);
     if (!$monster) return null;
 
-    $white = imagecolorallocate($monster, 255, 255, 255);
+    $white = @imagecolorallocate($monster, 255, 255, 255);
     imagefill($monster, 0, 0, $white);
 
     foreach ($parts as $part => $index) {
-        $filename = __DIR__ . '/parts/' . $part . $index . '.png';
+        $filename = __DIR__ . '/parts/' . $part . '_' . $index . '.png';
         if (!file_exists($filename)) continue;
         $part_img = imagecreatefrompng($filename);
+        imageSaveAlpha($part_img, true);
         if ($part_img) {
             imagecopy($monster, $part_img, 0, 0, 0, 0, 120, 120);
             imagedestroy($part_img);
