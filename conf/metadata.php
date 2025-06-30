@@ -9,5 +9,5 @@
 $meta['namespace'] = array('string');
 $meta['size']      = array('multichoice', '_choices' => array(20, 40, 80, 120));
 $meta['rating']    = array('multichoice', '_choices' => array('X', 'R', 'PG', 'G'));
-$meta['default']   = array('multichoice', '_choices' => array('404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro', 'blank'));
+$meta['default']   = array('multichoice', '_choices' => array('initials', 'color', '404', 'mp', 'identicon', 'monsterid', 'wavatar', 'retro', 'robohash', 'blank'));
 

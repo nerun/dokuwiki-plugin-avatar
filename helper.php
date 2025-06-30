@@ -195,7 +195,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
             'r' => $this->getConf('rating')
         ];
 
-        return self::GRAVATAR_BASE . $seed . '?' . http_build_query($params);
+        return self::GRAVATAR_BASE . $seed . '?' . str_replace('&amp;', '&', http_build_query($params));
     }
 
     private function getMonsterIdUrl(string $seed, int $size): string
