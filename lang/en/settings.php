@@ -7,8 +7,8 @@
  */
  
 // for the configuration manager
-$lang['namespace'] = 'Namespace for local avatars';
-$lang['size']      = 'Default size of avatar';
-$lang['rating']    = 'Minimum rating for gravatars';
-$lang['default']   = 'Type of default gravatars';
+$lang['namespace'] = 'Default namespace for local avatars';
+$lang['size']      = 'Default avatar size in pixels';
+$lang['rating']    = 'Maximum content rating allowed for Gravatars';
+$lang['default']   = 'Default image generator when an email address does not have a matching Gravatar image';
 
