@@ -41,7 +41,7 @@ declare(strict_types=1);
 if (php_sapi_name() !== 'cli') {
     $seed = preg_replace('/[^a-f0-9]/i', '', $_GET['seed'] ?? '');
     $size = (int) ($_GET['size'] ?? 120);
-    $size = max(20, min(512, $size)); // limits between 20 and 512 pixels
+    $size = max(20, min(400, $size)); // limits between 20 and 400 pixels
 
     header('Content-Type: image/png');
     header('Cache-Control: public, max-age=86400');
@@ -91,6 +91,15 @@ function generate_monster(string $seed, int $size): ?GdImage
         if ($part_img) {
             imagecopy($monster, $part_img, 0, 0, 0, 0, 120, 120);
             imagedestroy($part_img);
+
+             // color the body
+            if ($part === 'body') {
+                $r = get_part(substr($hash, 0, 4), 20, 235);
+                $g = get_part(substr($hash, 4, 4), 20, 235);
+                $b = get_part(substr($hash, 8, 4), 20, 235);
+                $color = imagecolorallocate($monster, $r, $g, $b);
+                imagefill($monster, 60, 60, $color);
+            }
         }
     }
 
