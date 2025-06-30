@@ -52,12 +52,12 @@ class helper_plugin_avatar extends DokuWiki_Plugin
     {
         $src = $this->resolveAvatarUrl($user, $title, $size);
 
-        return '<img src="' . hsc($src) . '" ' .
-               'class="media' . hsc($align) . ' photo fn" ' .
-               'title="' . hsc($title) . '" ' .
-               'alt="' . hsc($title) . '" ' .
-               'width="' . hsc((string) $size) . '" ' .
-               'height="' . hsc((string) $size) . '" />';
+        return '<img src="' . $src . '" ' .
+               'class="media' . $align . ' photo fn" ' .
+               'title="' . $title . '" ' .
+               'alt="' . $title . '" ' .
+               'width="' . (string) $size . '" ' .
+               'height="' . (string) $size . '" />';
     }
 
     /**
@@ -195,7 +195,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
             'r' => $this->getConf('rating')
         ];
 
-        return self::GRAVATAR_BASE . $seed . '?' . str_replace('&amp;', '&', http_build_query($params));
+        return self::GRAVATAR_BASE . $seed . '?' . http_build_query($params);
     }
 
     private function getMonsterIdUrl(string $seed, int $size): string
