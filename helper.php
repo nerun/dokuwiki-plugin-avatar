@@ -75,10 +75,25 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         }
 
         $mail = $this->extractUserData($user, $title);
-        $src = $this->tryLocalAvatar($user, $title, $size);
-
-        if (!$src) {
+        $isEmail = mail_isvalid($mail) && (!is_array($user) || !isset($user['user']));
+        
+        // For emails (Gravatar)
+        if ($isEmail) {
             $src = $this->getGravatarUrl($mail, $size);
+        } 
+        // For local users
+        else {
+            $src = $this->tryLocalAvatar($user, $title, $size);
+            
+            if (!$src) {
+                // Apply fallback configured for local users only
+                if ($this->getConf('local_default') === 'monsterid' && function_exists('imagecreatetruecolor')) {
+                    $seed = md5(dokuwiki\Utf8\PhpString::strtolower(is_array($user) ? ($user['user'] ?? '') : $user));
+                    $src = $this->getMonsterIdUrl($seed, $size);
+                } else {
+                    $src = $this->getDefaultImageUrl($size);
+                }
+            }
         }
 
         if (empty($title)) {
@@ -141,12 +156,14 @@ class helper_plugin_avatar extends DokuWiki_Plugin
             }
         }
 
-        // If it is the user itself, it generates and saves Monsterid
-        if (is_string($user) && $user === $username) {
-            if ($this->saveMonsterIdAvatar($username, 120)) { // Save large size to quality
-                $imagePath = $ns . ':' . $username . '.png';
-                if (file_exists(mediaFN($imagePath))) {
-                    return ml($imagePath, ['w' => $size, 'h' => $size], true, '&', false);
+        // Only generate MonsterID if it's the selected fallback
+        if ($this->getConf('local_default') === 'monsterid') {
+            if (is_string($user) && $user === $username) {
+                if ($this->saveMonsterIdAvatar($username, 120)) {
+                    $imagePath = $ns . ':' . $username . '.png';
+                    if (file_exists(mediaFN($imagePath))) {
+                        return ml($imagePath, ['w' => $size, 'h' => $size], true, '&', false);
+                    }
                 }
             }
         }
@@ -191,7 +208,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
 
         $params = [
             's' => $size,
-            'd' => $this->getConf('default'),
+            'd' => $this->getConf('gravatar_default'),
             'r' => $this->getConf('rating')
         ];
 
