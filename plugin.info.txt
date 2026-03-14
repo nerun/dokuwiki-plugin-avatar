@@ -2,7 +2,7 @@
 base   avatar
 author Daniel Rodrigues, Michael Hamann, Gina Häußge, et al.
 email  danieldiasr@gmail.com
-date   2025-06-30
+date   2026-03-14
 name   Avatar
 desc   Displays avatar images
 url    https://www.dokuwiki.org/plugin:avatar
