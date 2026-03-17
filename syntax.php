@@ -40,7 +40,7 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
         
         // Determine user / email
         if (!preg_match(
-            '/^(([a-zA-Z0-9._-]+)|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}))' .
+            '/^((\s*[a-zA-Z0-9._-]+\s*)|(\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\s*))' .
             '(?:\?([^|]*))?(?:\|(.*))?$/',
             $match,
             $matches
@@ -48,7 +48,7 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
             return null;
         }
 
-        $user = trim($matches[1]);
+        $user = $matches[1];
 
         /* Final check:
          * Even if something strange slipped through the first regex, here the
@@ -56,10 +56,8 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
          * only receive a clean username or a valid email, preventing parsing
          * problems, CSS errors, HTML injection, etc.
          */
-        if (filter_var($user, FILTER_VALIDATE_EMAIL) !== false) {
-            // Let it pass (valid email)
-        } elseif (!preg_match('/^[a-zA-Z0-9._-]+$/', $user)) {
-            // Neither email nor username is valid → rejects
+        if (filter_var($user, FILTER_VALIDATE_EMAIL) === false &&
+            !preg_match('/^\s*[a-zA-Z0-9._-]+\s*$/', $user)) {
             return null;
         }
 
