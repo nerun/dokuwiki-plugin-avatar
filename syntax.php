@@ -29,22 +29,47 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern("{{(?:gr|)avatar>.+?}}", $mode, 'plugin_avatar');
     }
 
-    public function handle($match, $state, $pos, Doku_Handler $handler): array {
-        list($syntax, $match) = explode('>', substr($match, 2, -2), 2);
-        // $syntax = 'avatar' or 'gravatar'
-        
-        if (!preg_match('/^([^?|]+)(?:\?([^|]*))?(?:\|(.*))?$/', $match, $matches)) {
-            return ['', '', null, null];
+    public function handle($match, $state, $pos, Doku_Handler $handler): ?array {
+        $parts = explode('>', substr($match, 2, -2), 2);
+
+        if (count($parts) !== 2) {
+            return null; // Malformed input → discards and interrupts handle()
         }
 
-        $user = $matches[1];
+        $match = $parts[1]; //  $parts[0] = 'avatar' or 'gravatar'
+        
+        // Determine user / email
+        if (!preg_match(
+            '/^(([a-zA-Z0-9._-]+)|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}))' .
+            '(?:\?([^|]*))?(?:\|(.*))?$/',
+            $match,
+            $matches
+        )) {
+            return null;
+        }
+
+        $user = trim($matches[1]);
+
+        /* Final check:
+         * Even if something strange slipped through the first regex, here the
+         * string is checked in isolation. This ensures that the renderer will
+         * only receive a clean username or a valid email, preventing parsing
+         * problems, CSS errors, HTML injection, etc.
+         */
+        if (filter_var($user, FILTER_VALIDATE_EMAIL) !== false) {
+            // Let it pass (valid email)
+        } elseif (!preg_match('/^[a-zA-Z0-9._-]+$/', $user)) {
+            // Neither email nor username is valid → rejects
+            return null;
+        }
+
         $param = isset($matches[2]) ? trim(strtolower($matches[2])) : '';
         $title = isset($matches[3]) ? trim($matches[3]) : '';
         
         // Determine alignment
         $align = null;
-        if (preg_match('/^ /', $user)) $align = 'right';
-        if (preg_match('/ $/', $user)) $align = $align ? 'center' : 'left';
+        if ($user !== ltrim($user)) $align = 'right';
+        if ($user !== rtrim($user)) $align = $align ? 'center' : 'left';
         $user = trim($user);
 
         // Determine size
@@ -61,6 +86,14 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
 
     public function render($mode, Doku_Renderer $renderer, $data): bool {
         if ($mode !== 'xhtml') return false;
+        
+        if ($data === null) {
+            $renderer->doc .= '<span style="color:red;font-family:monospace;' .
+                              'font-weight:bold;">' .
+                              'Error: Avatar plugin: Invalid username or' .
+                              ' email</span>';
+            return true;
+        }
 
         if ($my = plugin_load('helper', 'avatar')) {
             $renderer->doc .= '<span class="vcard">' . 
@@ -70,4 +103,3 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
         return true;
     }
 }
-

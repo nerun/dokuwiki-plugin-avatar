@@ -52,6 +52,8 @@ class helper_plugin_avatar extends DokuWiki_Plugin
     {
         $src = $this->resolveAvatarUrl($user, $title, $size);
 
+        $title = hsc($title);
+
         return '<img src="' . $src . '" ' .
                'class="media' . $align . ' photo fn" ' .
                'title="' . $title . '" ' .
@@ -229,4 +231,3 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         return ml(DOKU_URL . 'lib/plugins/avatar/' . $file, 'cache=recache', true, '&', true);
     }
 }
-
