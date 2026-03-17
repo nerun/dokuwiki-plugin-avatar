@@ -39,7 +39,7 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
         $match = $parts[1]; //  $parts[0] = 'avatar' or 'gravatar'
         
         if (!preg_match('/^([^?|]+)(?:\?([^|]*))?(?:\|(.*))?$/', $match, $matches)) {
-            return ['', '', null, null];
+            return null;
         }
 
         $user = $matches[1];
