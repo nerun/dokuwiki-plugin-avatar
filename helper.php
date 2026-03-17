@@ -23,7 +23,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         'xlarge' => 120
     ];
 
-    private const ALLOWED_FORMATS = ['.png', '.jpg', '.gif'];
+    private const ALLOWED_FORMATS = ['.png', '.jpg', '.gif', '.webp'];
     private const GRAVATAR_BASE = 'https://secure.gravatar.com/avatar/';
 
     private array $avatarCache = [];
@@ -138,32 +138,36 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         $username = is_array($user) ? ($user['user'] ?? '') : $user;
         $userinfo = $auth->getUserData($username);
 
-        if (!$userinfo) {
-            return null;
-        }
-
-        if (empty($title) && !empty($userinfo['name'])) {
-            $title = hsc($userinfo['name']);
-        }
+        if (!$userinfo) return null;
+        if (empty($title) && !empty($userinfo['name'])) $title = hsc($userinfo['name']);
 
         $ns = $this->getConf('namespace');
+        $existingFiles = [];
+
+        // Scan all allowed formats.
         foreach (self::ALLOWED_FORMATS as $format) {
             $imagePath = $ns . ':' . $username . $format;
             $imageFile = mediaFN($imagePath);
 
             if (file_exists($imageFile)) {
-                return ml($imagePath, ['w' => $size, 'h' => $size], true, '&', false);
+                $existingFiles[$imagePath] = filesize($imageFile);
             }
         }
 
-        // Only generate MonsterID if it's the selected fallback
+        if ($existingFiles) {
+            // Returns the file with the smallest size.
+            asort($existingFiles);
+            $bestPath = key($existingFiles);
+            return ml($bestPath, ['w' => $size, 'h' => $size], true, '&', false);
+        }
+
+        // No local files found → generate MonsterID if it's the selected
+        // fallback
         if ($this->getConf('local_default') === 'monsterid') {
-            if (is_string($user) && $user === $username) {
-                if ($this->saveMonsterIdAvatar($username, 120)) {
-                    $imagePath = $ns . ':' . $username . '.png';
-                    if (file_exists(mediaFN($imagePath))) {
-                        return ml($imagePath, ['w' => $size, 'h' => $size], true, '&', false);
-                    }
+            if ($this->saveMonsterIdAvatar($username, 120)) {
+                $monsterPath = $ns . ':' . $username . '.png';
+                if (file_exists(mediaFN($monsterPath))) {
+                    return ml($monsterPath, ['w' => $size, 'h' => $size], true, '&', false);
                 }
             }
         }
@@ -176,25 +180,26 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         $ns = $this->getConf('namespace');
         $filename = $ns . ':' . $username . '.png';
         $filepath = mediaFN($filename);
-        
-        // Skip generation if file already exists
-        if (file_exists($filepath)) {
-            return true;
+
+        // If any local avatar of the user already exists, it will not generate
+        // a MonsterID.
+        foreach (self::ALLOWED_FORMATS as $format) {
+            if (file_exists(mediaFN($ns . ':' . $username . $format))) {
+                return true;
+            }
         }
 
-        // Monsterid URL for the user
+        // MonsterID URL for the user
         $seed = md5(dokuwiki\Utf8\PhpString::strtolower($username));
         $monsterUrl = DOKU_URL . 'lib/plugins/avatar/monsterid.php?seed=' . $seed . '&size=' . $size;
 
         // Download the image using file_get_contents
         $imageData = @file_get_contents($monsterUrl);
-        if ($imageData === false) {
-            return false;
-        }
+        if ($imageData === false) return false;
 
         // creates the directory if it does not exist
         io_makeFileDir($filepath);
-
+        
         // Save the image
         return file_put_contents($filepath, $imageData) !== false;
     }
