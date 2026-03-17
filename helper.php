@@ -67,10 +67,8 @@ class helper_plugin_avatar extends DokuWiki_Plugin
      */
     public function resolveAvatarUrl(string|array $user, ?string &$title = null, ?int &$size = null): string
     {
-        global $auth;
-
         $size = $this->normalizeSize($size);
-        $cacheKey = $this->getCacheKey($user, $title, $size);
+        $cacheKey = $this->getCacheKey($user, $size);
 
         if (isset($this->avatarCache[$cacheKey])) {
             return $this->avatarCache[$cacheKey];
@@ -116,10 +114,10 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         return $confSize > 0 ? $confSize : self::DEFAULT_SIZES['medium'];
     }
 
-    private function getCacheKey(string|array $user, ?string $title, int $size): string
+    private function getCacheKey(string|array $user, int $size): string
     {
-        $userKey = is_array($user) ? ($user['mail'] ?? '') : $user;
-        return md5($userKey . $title . $size);
+        $userKey = is_array($user) ? ($user['mail'] ?? ($user['user'] ?? '')) : $user;
+        return md5($userKey . $size);
     }
 
     private function extractUserData(string|array $user, ?string &$title): string
@@ -178,6 +176,11 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         $ns = $this->getConf('namespace');
         $filename = $ns . ':' . $username . '.png';
         $filepath = mediaFN($filename);
+        
+        // Skip generation if file already exists
+        if (file_exists($filepath)) {
+            return true;
+        }
 
         // Monsterid URL for the user
         $seed = md5(dokuwiki\Utf8\PhpString::strtolower($username));
@@ -219,7 +222,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
 
     private function getMonsterIdUrl(string $seed, int $size): string
     {
-        $file = 'monsterid.php?seed=' . $seed . '&size=' . $size . '&.png';
+        $file = 'monsterid.php?seed=' . $seed . '&size=' . $size;
         return ml(DOKU_URL . 'lib/plugins/avatar/' . $file, 'cache=recache', true, '&', true);
     }
 
