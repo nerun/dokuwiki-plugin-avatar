@@ -38,14 +38,8 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
 
         $match = $parts[1]; //  $parts[0] = 'avatar' or 'gravatar'
         
-        // Determine user / email
-        if (!preg_match(
-            '/^((\s*[a-zA-Z0-9._-]+\s*)|(\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\s*))' .
-            '(?:\?([^|]*))?(?:\|(.*))?$/',
-            $match,
-            $matches
-        )) {
-            return null;
+        if (!preg_match('/^([^?|]+)(?:\?([^|]*))?(?:\|(.*))?$/', $match, $matches)) {
+            return ['', '', null, null];
         }
 
         $user = $matches[1];
