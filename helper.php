@@ -16,13 +16,6 @@ if (!defined('DOKU_INC')) die();
 
 class helper_plugin_avatar extends DokuWiki_Plugin
 {
-    private const DEFAULT_SIZES = [
-        'small'  => 20,
-        'medium' => 40,
-        'large'  => 80,
-        'xlarge' => 120
-    ];
-
     private const ALLOWED_FORMATS = ['.png', '.jpg', '.gif', '.webp'];
     private const GRAVATAR_BASE = 'https://secure.gravatar.com/avatar/';
 
@@ -65,9 +58,8 @@ class helper_plugin_avatar extends DokuWiki_Plugin
     /**
      * Gets or generates the avatar URL for a user/email
      */
-    public function resolveAvatarUrl(string|array $user, ?string &$title = null, ?int &$size = null): string
+    public function resolveAvatarUrl(string|array $user, string &$title, int &$size): string
     {
-        $size = $this->normalizeSize($size);
         $cacheKey = $this->getCacheKey($user, $size);
 
         if (isset($this->avatarCache[$cacheKey])) {
@@ -102,16 +94,6 @@ class helper_plugin_avatar extends DokuWiki_Plugin
 
         $this->avatarCache[$cacheKey] = $src;
         return $src;
-    }
-
-    private function normalizeSize(?int $size): int
-    {
-        if ($size && $size > 0) {
-            return $size;
-        }
-
-        $confSize = (int) $this->getConf('size');
-        return $confSize > 0 ? $confSize : self::DEFAULT_SIZES['medium'];
     }
 
     private function getCacheKey(string|array $user, int $size): string
@@ -233,9 +215,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
 
     private function getDefaultImageUrl(int $size): string
     {
-        $validSizes = array_values(self::DEFAULT_SIZES);
-        $realSize = in_array($size, $validSizes, true) ? $size : self::DEFAULT_SIZES['xlarge'];
-        $file = 'images/default_' . $realSize . '.png';
+        $file = 'images/default_' . $size . '.png';
         return ml(DOKU_URL . 'lib/plugins/avatar/' . $file, 'cache=recache', true, '&', true);
     }
 }

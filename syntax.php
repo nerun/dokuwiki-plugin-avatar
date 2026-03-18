@@ -70,7 +70,9 @@ class syntax_plugin_avatar extends DokuWiki_Syntax_Plugin {
             case 'm':  $size = self::SIZE_MEDIUM; break;
             case 'l':  $size = self::SIZE_LARGE; break;
             case 'xl': $size = self::SIZE_XLARGE; break;
-            default:   $size = null;
+            default:
+                $size = max(1, (int) $this->getConf('size')) ?: self::SIZE_MEDIUM;
+                break;
         }
 
         return [$user, $title, $align, $size];
