@@ -1,11 +1,10 @@
 #!/usr/bin/php
 <?php
-// -*- coding: utf-8 -*-
 declare(strict_types=1);
 
 // Avatar parameters
 define('IMG_SIZE', 120);
-define('ROUNDS', 20000);
+define('ROUNDS', 30000);
 define('PARTS_DIR', __DIR__ . '/parts');
 
 $partGroups = [
@@ -38,6 +37,9 @@ function generateMonster(): GdImage {
     return $img;
 }
 
+// Start timing
+$start = microtime(true);
+
 // Run benchmark
 $sizes = [];
 for ($i = 0; $i < ROUNDS; $i++) {
@@ -48,6 +50,10 @@ for ($i = 0; $i < ROUNDS; $i++) {
     $sizes[] = strlen($data);
     imagedestroy($img);
 }
+
+// End timing
+$end = microtime(true);
+$elapsed = $end - $start;
 
 // Statistics
 $min = min($sizes);
@@ -60,4 +66,5 @@ printf("Minimum size: %.2f KB\n", $min / 1024);
 printf("Maximum size: %.2f KB\n", $max / 1024);
 printf("Average size: %.2f KB\n", $avg / 1024);
 printf("Standard deviation: %.2f KB\n", $stddev / 1024);
-
+printf("Elapsed time: %.2f seconds\n", $elapsed);
+printf("Avatars per second: %.2f\n", ROUNDS / $elapsed);
