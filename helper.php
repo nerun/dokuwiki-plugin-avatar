@@ -108,6 +108,17 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         return $src;
     }
 
+    private function resolveTokens(string $template): string
+    {
+        global $INFO;
+
+        $vars = [
+            '@USER@' => cleanID($INFO['client'] ?? ''),
+        ];
+
+        return strtr($template, $vars);
+    }
+
     private function getCacheKey(string|array $user, int $size): string
     {
         $userKey = is_array($user) ? ($user['mail'] ?? ($user['user'] ?? '')) : $user;
@@ -135,7 +146,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         if (!$userinfo) return null;
         if (empty($title) && !empty($userinfo['name'])) $title = hsc($userinfo['name']);
 
-        $ns = $this->getConf('namespace');
+        $ns = $this->resolveTokens($this->getConf('namespace'));
         $existingFiles = [];
 
         // Scan all allowed formats.
@@ -171,7 +182,17 @@ class helper_plugin_avatar extends DokuWiki_Plugin
 
     private function saveMonsterIdAvatar(string $username, int $size): bool
     {
-        $ns = $this->getConf('namespace');
+        global $INFO;
+
+        $currentUser = cleanID($INFO['client'] ?? '');
+        $username    = cleanID($username);
+
+        // It only allows you to save your own avatar.
+        if ($username !== $currentUser) {
+            return false;
+        }
+
+        $ns = $this->resolveTokens($this->getConf('namespace'));
         $filename = $ns . ':' . $username . '.png';
         $filepath = mediaFN($filename);
 
