@@ -27,6 +27,5 @@
 $meta['namespace']        = array('string');
 $meta['size']             = array('multichoice', '_choices' => array(20, 40, 80, 120));
 $meta['rating']           = array('multichoice', '_choices' => array('X', 'R', 'PG', 'G'));
-$meta['gravatar_default'] = array('multichoice', '_choices' => array('initials', 'color', '404', 'mp', 'identicon', 'monsterid', 'wavatar', 'retro', 'robohash', 'blank'));
+$meta['gravatar_default'] = array('multichoice', '_choices' => array('default', '404', 'blank', 'color', 'identicon', 'initials', 'monsterid', 'mp', 'retro', 'robohash', 'wavatar'));
 $meta['local_default']    = array('multichoice', '_choices' => array('monsterid', 'mystery_man'));
-

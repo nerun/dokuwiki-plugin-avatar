@@ -233,9 +233,14 @@ class helper_plugin_avatar extends DokuWiki_Plugin
 
         $params = [
             's' => $size,
-            'd' => $this->getConf('gravatar_default'),
             'r' => $this->getConf('rating')
         ];
+
+        $gravatar_default = $this->getConf('gravatar_default');
+        
+        if ($gravatar_default !== 'default') {
+            $params['d'] = $gravatar_default;
+        }
 
         return self::GRAVATAR_BASE . $seed . '?' . http_build_query($params);
     }

@@ -26,5 +26,5 @@
 $conf['namespace']        = 'user';        // user namespace where local avatars are stored
 $conf['size']             = 80;            // default size of avatars: 20, 40, 80 or 120 pixel
 $conf['rating']           = 'PG';          // max rating of gravatar images: G, PG, R or X
-$conf['gravatar_default'] = 'monsterid';   // default fallback for gravatar
+$conf['gravatar_default'] = 'default';     // default fallback for gravatar
 $conf['local_default']    = 'monsterid';   // default fallback for local avatars
