@@ -1,13 +1,14 @@
 <?php
+
 /**
  * MonsterID Generator for DokuWiki Avatar Plugin
- * 
+ *
  * Generates identicon-style monster avatars based on a seed.
  * Requires PHP GD extension.
- * 
- * 
+ *
+ *
  * MIT License
- * 
+ *
  * Copyright (c) 2007 Andreas Gohr <andi@splitbrain.org>
  *     @source: https://github.com/splitbrain/monsterID
  *
@@ -16,17 +17,17 @@
  *
  * Copyright (c) 2025 Daniel Dias Rodrigues <danieldiasr@gmail.com>
  *     @source: https://github.com/nerun/dokuwiki-plugin-avatar
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -38,7 +39,7 @@
 
 declare(strict_types=1);
 
-if (php_sapi_name() !== 'cli') {
+if (PHP_SAPI !== 'cli') {
     $seed = preg_replace('/[^a-f0-9]/i', '', $_GET['seed'] ?? '');
     $size = (int) ($_GET['size'] ?? 120);
     $size = max(20, min(400, $size)); // limits between 20 and 400 pixels
@@ -122,4 +123,3 @@ function get_part(string $hex, int $min, int $max): int
     $val = hexdec($hex);
     return ($val % ($max - $min + 1)) + $min;
 }
-
