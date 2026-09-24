@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Options for the Avatar Plugin.
  * DokuWiki Avatar Plugin: displays avatar images with syntax, see:

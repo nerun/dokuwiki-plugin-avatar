@@ -1,5 +1,6 @@
 #!/usr/bin/php
 <?php
+
 declare(strict_types=1);
 
 // Avatar parameters
@@ -16,13 +17,15 @@ $partGroups = [
     'mouth' => 10,
 ];
 
-function getRandomPart(string $group, int $max): GdImage {
+function getRandomPart(string $group, int $max): GdImage
+{
     $n = random_int(1, $max);
     $path = sprintf('%s/%s_%d.png', PARTS_DIR, $group, $n);
     return imagecreatefrompng($path);
 }
 
-function generateMonster(): GdImage {
+function generateMonster(): GdImage
+{
     $img = imagecreatetruecolor(IMG_SIZE, IMG_SIZE);
     imagesavealpha($img, true);
     $transparent = imagecolorallocatealpha($img, 0, 0, 0, 127);
@@ -59,7 +62,7 @@ $elapsed = $end - $start;
 $min = min($sizes);
 $max = max($sizes);
 $avg = array_sum($sizes) / count($sizes);
-$stddev = sqrt(array_sum(array_map(fn($s) => pow($s - $avg, 2), $sizes)) / count($sizes));
+$stddev = sqrt(array_sum(array_map(fn($s) => ($s - $avg) ** 2, $sizes)) / count($sizes));
 
 printf("Generated avatars: %d\n", ROUNDS);
 printf("Minimum size: %.2f KB\n", $min / 1024);

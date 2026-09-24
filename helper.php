@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Avatar Plugin: displays avatar images with syntax, see:
  * <https://www.dokuwiki.org/plugin:avatar>.
@@ -24,9 +25,15 @@
 
 declare(strict_types=1);
 
+use dokuwiki\Extension\Plugin;
+use dokuwiki\Utf8\PhpString;
+
+use function dokuwiki\MailUtils::isValid;
+use function dokuwiki\MailUtils::obfuscate;
+
 if (!defined('DOKU_INC')) die();
 
-class helper_plugin_avatar extends DokuWiki_Plugin
+class helper_plugin_avatar extends Plugin
 {
     private const ALLOWED_FORMATS = ['.png', '.jpg', '.gif', '.webp'];
     private const GRAVATAR_BASE = 'https://secure.gravatar.com/avatar/';
@@ -63,8 +70,8 @@ class helper_plugin_avatar extends DokuWiki_Plugin
                'class="media' . $align . ' photo fn" ' .
                'title="' . $title . '" ' .
                'alt="' . $title . '" ' .
-               'width="' . (string) $size . '" ' .
-               'height="' . (string) $size . '" />';
+               'width="' . $size . '" ' .
+               'height="' . $size . '" />';
     }
 
     /**
@@ -79,20 +86,20 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         }
 
         $mail = $this->extractUserData($user, $title);
-        $isEmail = mail_isvalid($mail) && (!is_array($user) || !isset($user['user']));
-        
+        $isEmail = MailUtils::isValid($mail) && (!is_array($user) || !isset($user['user']));
+
         // For emails (Gravatar)
         if ($isEmail) {
             $src = $this->getGravatarUrl($mail, $size);
-        } 
+        }
         // For local users
         else {
             $src = $this->tryLocalAvatar($user, $title, $size);
-            
+
             if (!$src) {
                 // Apply fallback configured for local users only
                 if ($this->getConf('local_default') === 'monsterid' && function_exists('imagecreatetruecolor')) {
-                    $seed = md5(dokuwiki\Utf8\PhpString::strtolower(is_array($user) ? ($user['user'] ?? '') : $user));
+                    $seed = md5(PhpString::strtolower(is_array($user) ? ($user['user'] ?? '') : $user));
                     $src = $this->getMonsterIdUrl($seed, $size);
                 } else {
                     $src = $this->getDefaultImageUrl($size);
@@ -101,7 +108,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         }
 
         if (empty($title)) {
-            $title = obfuscate($mail);
+            $title = MailUtils::obfuscate($mail);
         }
 
         $this->avatarCache[$cacheKey] = $src;
@@ -205,7 +212,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         }
 
         // MonsterID URL for the user
-        $seed = md5(dokuwiki\Utf8\PhpString::strtolower($username));
+        $seed = md5(PhpString::strtolower($username));
         $monsterUrl = DOKU_URL . 'lib/plugins/avatar/monsterid.php?seed=' . $seed . '&size=' . $size;
 
         // Download the image using file_get_contents
@@ -214,20 +221,20 @@ class helper_plugin_avatar extends DokuWiki_Plugin
 
         // creates the directory if it does not exist
         io_makeFileDir($filepath);
-        
+
         // Save the image
         return file_put_contents($filepath, $imageData) !== false;
     }
 
     private function getGravatarUrl(string $mail, int $size): string
     {
-        $seed = md5(dokuwiki\Utf8\PhpString::strtolower($mail));
+        $seed = md5(PhpString::strtolower($mail));
 
         $default = function_exists('imagecreatetruecolor')
             ? $this->getMonsterIdUrl($seed, $size)
             : $this->getDefaultImageUrl($size);
 
-        if (!mail_isvalid($mail)) {
+        if (!MailUtils::isValid($mail)) {
             return $default;
         }
 
@@ -237,7 +244,7 @@ class helper_plugin_avatar extends DokuWiki_Plugin
         ];
 
         $gravatar_default = $this->getConf('gravatar_default');
-        
+
         if ($gravatar_default !== 'default') {
             $params['d'] = $gravatar_default;
         }
