@@ -27,9 +27,7 @@ declare(strict_types=1);
 
 use dokuwiki\Extension\Plugin;
 use dokuwiki\Utf8\PhpString;
-
-use function dokuwiki\MailUtils::isValid;
-use function dokuwiki\MailUtils::obfuscate;
+use dokuwiki\MailUtils;
 
 if (!defined('DOKU_INC')) die();
 
