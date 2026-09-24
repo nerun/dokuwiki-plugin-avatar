@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore PSR1.Files.SideEffects.FoundWithSymbols
 
 /**
  * DokuWiki Avatar Plugin: displays avatar images with syntax, see:
@@ -89,9 +89,8 @@ class helper_plugin_avatar extends Plugin
         // For emails (Gravatar)
         if ($isEmail) {
             $src = $this->getGravatarUrl($mail, $size);
-        }
-        // For local users
-        else {
+        } else {
+            // For local users
             $src = $this->tryLocalAvatar($user, $title, $size);
 
             if (!$src) {

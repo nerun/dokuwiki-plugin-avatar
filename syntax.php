@@ -1,7 +1,4 @@
-<?php
-
-use dokuwiki\Extension\SyntaxPlugin;
-use dokuwiki\Parsing\Handler;
+<?php // phpcs:ignore PSR1.Files.SideEffects.FoundWithSymbols
 
 /**
  * DokuWiki Avatar Plugin: displays avatar images with syntax, see:
@@ -26,14 +23,17 @@ use dokuwiki\Parsing\Handler;
  * with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
+use dokuwiki\Extension\SyntaxPlugin;
+use dokuwiki\Parsing\Handler;
+
 if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_avatar extends SyntaxPlugin
 {
-    const SIZE_SMALL = 20;
-    const SIZE_MEDIUM = 40;
-    const SIZE_LARGE = 80;
-    const SIZE_XLARGE = 120;
+    private const SIZE_SMALL = 20;
+    private const SIZE_MEDIUM = 40;
+    private const SIZE_LARGE = 80;
+    private const SIZE_XLARGE = 120;
 
     public function getType(): string
     {

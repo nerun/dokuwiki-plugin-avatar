@@ -1,5 +1,4 @@
-#!/usr/bin/php
-<?php
+<?php // phpcs:ignore PSR1.Files.SideEffects.FoundWithSymbols
 
 declare(strict_types=1);
 
